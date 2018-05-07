@@ -67,14 +67,19 @@
 #define SX127X_REG_TIMER_RESOL 0x38
 #define SX127X_REG_TIMER_1_COEF 0x39
 #define SX127X_REG_TIMER_2_COEF 0x3A
+//Service registers
 #define SX127X_REG_IMAGE_CAL 0x3B
 #define SX127X_REG_TEMP 0x3C
 #define SX127X_REG_LOW_BAT 0x3D
+//Status registers
 #define SX127X_REG_IRQ_FLAGS_1 0x3E
 #define SX127X_REG_IRQ_FLAGS_2 0x3F
+//IO control registers
 #define SX127X_REG_DIO_MAPPING_1 0x40
 #define SX127X_REG_DIO_MAPPING_2 0x41
+//Version register
 #define SX127X_REG_VERSION 0x42
+//Additon registers
 #define SX127X_REG_PLL_HOP 0x44
 #define SX127X_REG_TCXO 0x4B
 #define SX127X_REG_PA_DAC 0x4D
@@ -84,7 +89,7 @@
 #define SX127X_REG_AGC_THRESH_1 0x62
 #define SX127X_REG_AGC_THRESH_2 0x63
 #define SX127X_REG_AGC_THRESH_3 0x64
-
+#define SX127X_REG_PLL 0x70
 //Low Frequency Additional Registers
 #define SX127X_REG_AGC_REF_LF 0x61
 #define SX127X_REG_AGC_THRESH_1_LF 0x62
