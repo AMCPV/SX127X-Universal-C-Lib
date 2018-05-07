@@ -90,6 +90,7 @@
 #define SX127X_REG_AGC_THRESH_2 0x63
 #define SX127X_REG_AGC_THRESH_3 0x64
 #define SX127X_REG_PLL 0x70
+
 //Low Frequency Additional Registers
 #define SX127X_REG_AGC_REF_LF 0x61
 #define SX127X_REG_AGC_THRESH_1_LF 0x62
