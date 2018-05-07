@@ -1,5 +1,42 @@
 #define SX127X_REG_FIFO 0x00
 #define SX127X_REG_OP_MODE 0x01
+	#define SX127X_MODE_SLEEP 0x00
+	#define SX127X_MODE_STDBY 0x01
+	#define SX127X_MODE_FSTX 0x02
+	#define SX127X_MODE_TX 0x03
+	#define SX127X_MODE_FSRX 0x04
+	#define SX127X_MODE_RX 0x05
+void sx127x_set_op_mode(uint8_t mode) {
+	sx127x_reg_set(SX127X_REG_OP_MODE,(sx127x_reg_get(SX127X_REG_OP_MODE) & 0xF8) | (mode & 0x7))
+}
+void sx127x_get_op_mode() {
+	return sx127x_reg_get(SX127X_REG_OP_MODE) & 0x07;
+}
+void sx127x_set_loRa_mode(bool on) {
+	uint8_t current_mode = sx127x_reg_get(SX127X_REG_OP_MODE);
+	sx127x_reg_set(SX127X_REG_OP_MODE, (current_mode & 0xF8) | (mode & 0x7));
+	sx127x_reg_set(SX127X_REG_OP_MODE, (current_mode & 0x7F) | (on << 7));
+}
+bool sx127x_get_loRa_mode() {
+	return sx127x_reg_get(SX127X_REG_OP_MODE) >> 7;
+}
+	#define SX127X_TYPE_FSK 0x00
+	#define SX127X_TYPE_OOK 0x50
+void sx127x_set_modulation_type(uint8_t type) {
+	sx127x_reg_set(SX127X_REG_OP_MODE, (sx127x_reg_get(SX127X_REG_OP_MODE) & 0x9F) | (type & 0x60));
+}
+void sx127x_set_access_shared_reg(bool on) {
+	sx127x_reg_set(SX127X_REG_OP_MODE, (sx127x_reg_get(SX127X_REG_OP_MODE) & 0xF7) | (on << 6));
+}
+bool sx127x_get_access_shared_reg() {
+	return sx127x_reg_get(SX127X_REG_OP_MODE) & 0x40?true:false;
+}
+void sx127x_set_low_frequency_mode(bool on) {
+	sx127x_reg_set(SX127X_REG_OP_MODE, (sx127x_reg_get(SX127X_REG_OP_MODE) & 0xF7) | (on << 3));
+}
+bool sx127x_get_low_frequency_mode() {
+	return sx127x_reg_get(SX127X_REG_OP_MODE) & 0x4 ? true : false;
+}
 #define SX127X_REG_BITRATE 0x02
 #define SX127X_REG_BITRATE_MSB 0x02
 #define SX127X_REG_BITRATE_LSB 0x03
@@ -54,6 +91,26 @@
 #define SX127X_REG_SYNC_VALUE_6 0x2D
 #define SX127X_REG_SYNC_VALUE_7 0x2E
 #define SX127X_REG_SYNC_VALUE_8 0x2F
+uint64_t sx127x_get_sync_value() {
+	unit64_t val=0;
+	for (unit8_t x = 0; x < 8; x++)
+#if sizeof(uint8_t)==1 && sizeof(uint64_t)==8
+		(*uint8_t)(&val)[7 - x] = sx127x_reg_get(SX127X_REG_SYNC_VALUE + x);
+#else
+		val |= sx127x_reg_get(SX127X_REG_SYNC_VALUE + x) << 8*(7 - x);
+#endif
+	return val;
+}
+
+void sx127x_set_sync_value(uint64_t val) {
+	for (uint8_t x = 0; x < 8; x++)
+#if sizeof(uint8_t)==1&&sizeof(uint64_t)==8
+		sx127x_reg_set(addr + x, (*uint8_t)(&val)[7-x]);
+#else
+		sx127x_reg_set(addr + x, (val >> (8 * (7 - x))) & 0xFF);
+#endif
+}
+
 #define SX127X_REG_PACKET_CONFIG_1 0x30
 #define SX127X_REG_PACKET_CONFIG_2 0x31
 #define SX127X_REG_PAYLOAD_LENGTH 0x32

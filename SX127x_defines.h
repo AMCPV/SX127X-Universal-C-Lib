@@ -1,3 +1,9 @@
+#define SX127X_SET(addr,val,lenght) for(uint8_t x=0;x<lenght;x++)	sx127x_reg_set(addr+x,val>>(8*((lenght-1)-x)))
+#define SX127X_GET(addr,val,lenght) for(uint8_t x=0;x<lenght;x++)	val |= sx127x_reg_get(addr+x)>>(8*((lenght-1)-x))
+#define SX127X_GET2(addr) ((sx127x_reg_get(addr)<<8)|sx127x_reg_get(addr+1))
+#define SX127X_GET3(addr) ((sx127x_reg_get(addr) << 16) | (sx127x_reg_get(addr + 1) << 8) | sx127x_reg_get(addr + 1))
+#define SX127X_GET8(addr) ((sx127x_reg_get(addr) << 8*7) | (sx127x_reg_get(addr + 1) << 8*6) | (sx127x_reg_get(addr+2) << 8*5) | (sx127x_reg_get(addr + 3) << 8*4) | (sx127x_reg_get(addr +4 ) << 8*3) | (sx127x_reg_get(addr + 5) << 8*2) | (sx127x_reg_get(addr+6) << 8) | sx127x_reg_get(addr + 7))
+
 #define SX127X_REG_VER 0x42
 #define SX127X_VER 0x12
 #define SX127X_REG_OP_MODE 0x01
