@@ -23,9 +23,12 @@ bool sx127x_get_loRa_mode() {
 	#define SX127X_TYPE_FSK 0x00
 	#define SX127X_TYPE_OOK 0x50
 void sx127x_set_modulation_type(uint8_t type) {
-	sx127x_reg_set(SX127X_REG_OP_MODE, (sx127x_reg_get(SX127X_REG_OP_MODE) & 0x9F) | (type & 0x60));
+	sx127x_reg_set(SX127X_REG_OP_MODE, (sx127x_reg_get(SX127X_REG_OP_MODE) & 0x9F) | ((type & 0x3)<<5));
 }
-void sx127x_set_access_shared_reg(bool on) {
+uint8_t sx127x_get_modulation_type() {
+	return (sx127x_reg_get(SX127X_REG_OP_MODE)>>5) & 0x3;
+}
+void sx127x_set_access_shared_reg(bool on) {//lora only
 	sx127x_reg_set(SX127X_REG_OP_MODE, (sx127x_reg_get(SX127X_REG_OP_MODE) & 0xF7) | (on << 6));
 }
 bool sx127x_get_access_shared_reg() {
@@ -38,12 +41,48 @@ bool sx127x_get_low_frequency_mode() {
 	return sx127x_reg_get(SX127X_REG_OP_MODE) & 0x4 ? true : false;
 }
 #define SX127X_REG_BITRATE 0x02
+void sx127x_set_bitrate(uint16_t val) {
+	for (uint8_t x = 0; x < 2; x++)
+#if (sizeof(uint16_t)/sizeof(uint8_t))==2
+		sx127x_reg_set(SX127X_REG_FRF + x, (*uint8_t)(&val)[1 - x]);
+#else
+		sx127x_reg_set(SX127X_REG_FRF + x, (val >> (8 * (1 - x))) & 0xFF);
+#endif
+}
+uint16_t sx127x_set_bitrate() {
+	uint16_t val = 0;
+	for (unit8_t x = 0; x < 2; x++)
+#if (sizeof(uint16_t)/sizeof(uint8_t))==2
+		(*uint8_t)(&val)[1 - x] = sx127x_reg_get(SX127X_REG_FRF + x);
+#else
+		val |= sx127x_reg_get(SX127X_REG_FRF + x) << 8 * (1 - x);
+#endif
+	return val;
+}
 #define SX127X_REG_BITRATE_MSB 0x02
 #define SX127X_REG_BITRATE_LSB 0x03
 #define SX127X_REG_FDEV 0x04
 #define SX127X_REG_FDEV_MSB 0x04
 #define SX127X_REG_FDEV_LSB 0x05
 #define SX127X_REG_FRF 0x06
+void sx127x_set_frf(uint32_t val) {
+	for (uint8_t x = 0; x < 3; x++)
+#if (sizeof(uint32_t)/sizeof(uint8_t))==4
+		sx127x_reg_set(SX127X_REG_FRF + x, (*uint8_t)(&val)[2 - x]);
+#else
+		sx127x_reg_set(SX127X_REG_FRF + x, (val >> (8 * (2 - x))) & 0xFF);
+#endif
+}
+uint32_t sx127x_get_sync_value() {
+	unit32_t val = 0;
+	for (unit8_t x = 0; x < 3; x++)
+#if (sizeof(uint32_t)/sizeof(uint8_t))==4
+		(*uint8_t)(&val)[2 - x] = sx127x_reg_get(SX127X_REG_FRF + x);
+#else
+		val |= sx127x_reg_get(SX127X_REG_FRF + x) << 8 * (2 - x);
+#endif
+	return val;
+}
 #define SX127X_REG_FRF_MSB 0x06
 #define SX127X_REG_FRF_MID 0x07
 #define SX127X_REG_FRF_LSB 0x08
@@ -94,7 +133,7 @@ bool sx127x_get_low_frequency_mode() {
 uint64_t sx127x_get_sync_value() {
 	unit64_t val=0;
 	for (unit8_t x = 0; x < 8; x++)
-#if sizeof(uint8_t)==1 && sizeof(uint64_t)==8
+#if (sizeof(uint64_t)/sizeof(uint8_t))==8
 		(*uint8_t)(&val)[7 - x] = sx127x_reg_get(SX127X_REG_SYNC_VALUE + x);
 #else
 		val |= sx127x_reg_get(SX127X_REG_SYNC_VALUE + x) << 8*(7 - x);
@@ -104,10 +143,10 @@ uint64_t sx127x_get_sync_value() {
 
 void sx127x_set_sync_value(uint64_t val) {
 	for (uint8_t x = 0; x < 8; x++)
-#if sizeof(uint8_t)==1&&sizeof(uint64_t)==8
-		sx127x_reg_set(addr + x, (*uint8_t)(&val)[7-x]);
+#if (sizeof(uint64_t)/sizeof(uint8_t))==8
+		sx127x_reg_set(SX127X_REG_SYNC_VALUE + x, (*uint8_t)(&val)[7-x]);
 #else
-		sx127x_reg_set(addr + x, (val >> (8 * (7 - x))) & 0xFF);
+		sx127x_reg_set(SX127X_REG_SYNC_VALUE + x, (val >> (8 * (7 - x))) & 0xFF);
 #endif
 }
 
