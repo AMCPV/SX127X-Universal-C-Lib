@@ -21,7 +21,7 @@ bool sx127x_get_loRa_mode() {
 	return sx127x_reg_get(SX127X_REG_OP_MODE) >> 7;
 }
 	#define SX127X_TYPE_FSK 0x00
-	#define SX127X_TYPE_OOK 0x50
+	#define SX127X_TYPE_OOK 0x01
 void sx127x_set_modulation_type(uint8_t type) {
 	sx127x_reg_set(SX127X_REG_OP_MODE, (sx127x_reg_get(SX127X_REG_OP_MODE) & 0x9F) | ((type & 0x3)<<5));
 }
